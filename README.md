@@ -21,6 +21,13 @@ npm i -g @nestjs/cli
 docker compose up -d
 ```
 
+5.- Copiar __.env.template__ y renombrar __.env__
+
+6.-Construir base de datos
+```
+Visitar la ruta /api/v2/seed con metodo get
+```
+
 ##Stack usado
 * MongoDB
 * NestJS

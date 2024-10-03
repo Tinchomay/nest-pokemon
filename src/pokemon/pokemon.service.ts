@@ -4,15 +4,23 @@ import { UpdatePokemonDto } from './dto/update-pokemon.dto';
 import { isValidObjectId, Model } from 'mongoose';
 import { Pokemon } from './entities/pokemon.entity';
 import { InjectModel } from '@nestjs/mongoose';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PokemonService {
+  //Definimos una propiedad y se asignamos el valor en el constructor
+  private defaultLimit: number;
   //para poder utilizar el modelo de mongoose tenemos que inyectarlo como una dependencia, el modelo sera de tipo Model de mongoose con el generico de la entidad
   //Tambien tenemos que utilizar el decorador @InjectModel() dentro de los parentesis ira la entidad y el name que es el name de la funcion de la entidad, no de la propiedad
   constructor(
     @InjectModel(Pokemon.name)
-    private readonly pokemonModel : Model<Pokemon>
-  ){}
+    private readonly pokemonModel : Model<Pokemon>,
+    //Inyectamos el configService que es propio de nest
+    private readonly configService: ConfigService
+  ){
+    this.defaultLimit = configService.get('defaultLimit')
+  }
 
   async create(createPokemonDto: CreatePokemonDto) {
     createPokemonDto.name = createPokemonDto.name.toLowerCase();
@@ -24,8 +32,18 @@ export class PokemonService {
     }
   }
 
-  async findAll() {
-    return await this.pokemonModel.find();
+  async findAll(paginationDto : PaginationDto) {
+    const {limit = this.defaultLimit, offset = 0} = paginationDto;
+    return await this.pokemonModel
+      .find()
+      .limit(limit)
+      .skip(offset)
+      .sort({
+        //Vamos a ordenar la columna no de manera ascendente
+        no: 1
+      })
+      //con el select podemos restar columnas
+      .select('-__v');
   }
 
   async findOne(term: string) {
