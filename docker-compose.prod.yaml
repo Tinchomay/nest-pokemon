@@ -1,0 +1,43 @@
+services:
+  #este sera el nuevo servicio le ponemos el nombre que queramos
+  pokedexapp:
+    #depnds_on para asegurarnos de que se levante solo si la bd se inicia, con esto hacemos que se inicie el servio de db
+    depends_on:
+      - db
+    #este es el proceso de construccion, el context con el punto indica que se base en la posicion donde este este archivo y las instrucciones que va a ejecutar es el Dockerfile
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    #este sera el nombre de la imagen final
+    image: pokedex-docker
+    #esto es el nombre del contenedor
+    container_name: pokedexapp
+    restart: always # reiniciar el contenedor si se detiene
+    #aqui vamos a exponer el puerto de nuestro .env que este en la raiz del proyecto para acceder al mismo puerto del contenedor
+    ports:
+      - "${PORT}:${PORT}"
+    # working_dir: /var/www/pokedex
+    #estas son las variables de entorno que va a tener el contenedor, solo las igualamos con las que tenemos en nuestro .env
+    environment:
+      MONGODB: ${MONGODB}
+      PORT: ${PORT}
+      DEFAULT_LIMIT: ${DEFAULT_LIMIT}
+    #con esto podemos conservar los datos de la imagen en nuestro filesystem
+    # volumes:
+    #   - ./:/var/www/pokedex
+
+  db:
+    image: mongo:latest
+    #este sera el nombre del contenedor
+    container_name: mongo-poke
+    #restart para que en caso de se caiga se reinicio solo
+    restart: always
+    #puerto a exponer con el del contenedor
+    ports:
+      - 27017:27017
+    #variables de entorno de la imagen
+    environment:
+      #nombre de la bd
+      MONGODB_DATABASE: nest-pokemon
+    volumes:
+      - ./mongo:/data/db

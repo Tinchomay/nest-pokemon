@@ -32,3 +32,11 @@ Visitar la ruta /api/v2/seed con metodo get
 * MongoDB
 * NestJS
 * Docker
+
+# Production Build con Docker
+1. Crear archivo ```.env.prod``` 
+2. Llenar las variables de entorno de produccion con el nombre del contenedor de Mongo
+3. Construir la imagen 
+```
+docker-compose -f docker-compose.prod.yaml --env-file .env.prod up --build
+```
